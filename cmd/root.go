@@ -5,9 +5,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/komish/preflight/certification"
 	"github.com/komish/preflight/certification/errors"
-	"github.com/komish/preflight/certification/formatters"
 	"github.com/komish/preflight/certification/runtime"
 	"github.com/spf13/cobra"
 )
@@ -17,7 +15,7 @@ var rootCmd = &cobra.Command{
 	Short: "Preflight Red Hat certification prep tool.",
 	Long: "A utility that allows you to pre-test your bundles, operators, and container before submitting for Red Hat Certification." +
 		"\nChoose from any of the following policies:" +
-		"\n\n" + strings.Join(certification.AllPolicies(), "\n"),
+		"\n\n" + strings.Join(runtime.GetPoliciesByName(), "\n"),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		// Expect exactly one positional arg. Check here instead of using builtin Args key
 		// so that we can get a more user-friendly error message
@@ -37,14 +35,14 @@ var rootCmd = &cobra.Command{
 		}
 
 		runner.ExecutePolicies()
-		results := runner.GetResults()
+		// results := runner.GetResults()
 
-		formattedResults, err := formatters.GenericJSONFormatter(results)
-		if err != nil {
-			return err
-		}
+		// // formattedResults, err := formatters.GenericJSONFormatter(results)
+		// // if err != nil {
+		// // 	return err
+		// // }
 
-		fmt.Fprint(os.Stdout, string(formattedResults))
+		// // fmt.Fprint(os.Stdout, string(formattedResults))
 
 		return nil
 	},

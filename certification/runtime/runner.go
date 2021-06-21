@@ -3,55 +3,64 @@ package runtime
 import (
 	"fmt"
 
-	"github.com/komish/preflight/certification"
 	"github.com/komish/preflight/certification/errors"
 	"github.com/komish/preflight/certification/internal/policy"
-	"github.com/komish/preflight/version"
 )
 
 // TODO: Decide what of this file actually needs exporting
 
-type PolicyRunner interface {
+type PolicyEngine interface {
 	ExecutePolicies()
 	// StorePolicies(...[]certification.Policy)
 	GetResults() Results
 }
 
-func NewForConfig(config Config) (*policyRunner, error) {
+// Register all policies
+var NameToPoliciesMap = map[string]policy.Policy{
+	policy.RunAsNonRootPolicy{}.GetName():     policy.RunAsNonRootPolicy{},
+	policy.UnderLayerMaxPolicy{}.GetName():    policy.UnderLayerMaxPolicy{},
+	policy.HasRequiredLabelPolicy{}.GetName(): policy.HasRequiredLabelPolicy{},
+	policy.BasedOnUbiPolicy{}.GetName():       policy.BasedOnUbiPolicy{},
+}
+
+func GetPoliciesByName() []string {
+	all := make([]string, len(NameToPoliciesMap))
+	i := 0
+
+	for k := range NameToPoliciesMap {
+		all[i] = k
+		i++
+	}
+	return all
+}
+
+func NewForConfig(config Config) (*PolicyRunner, error) {
 	if len(config.EnabledPolicies) == 0 {
 		// refuse to run if the user has not specified any policies
 		return nil, errors.ErrNoPoliciesEnabled
 	}
 
-	policies := make([]certification.Policy, len(config.EnabledPolicies))
+	policies := make([]policy.Policy, len(config.EnabledPolicies))
 	for i, policyString := range config.EnabledPolicies {
-		policyFunc, exists := certification.PolicyMap[policyString]
+		// search policies by names
+		policy, exists := NameToPoliciesMap[policyString]
 		if !exists {
 			err := fmt.Errorf("%w: %s",
 				errors.ErrRequestedPolicyNotFound,
 				policyString)
 			return nil, err
 		}
-
-		policies[i] = policyFunc()
+		policies[i] = policy
 	}
-
-	runner := &policyRunner{
+	runner := &PolicyRunner{
 		Image:    config.Image,
 		Policies: policies,
 	}
-
 	return runner, nil
 }
 
-type policyRunner struct {
-	Image    string
-	Policies []certification.Policy
-	Results  Results
-}
-
 // ExecutePolicies runs all policies stored in the policy runner.
-func (pr *policyRunner) ExecutePolicies() {
+func (pr *PolicyRunner) ExecutePolicies() {
 	pr.Results.TestedImage = pr.Image
 	for _, policy := range pr.Policies {
 		passed, err := policy.Validate(pr.Image)
@@ -65,38 +74,11 @@ func (pr *policyRunner) ExecutePolicies() {
 			pr.Results.Failed = append(pr.Results.Failed, policy)
 			continue
 		}
-
 		pr.Results.Passed = append(pr.Results.Passed, policy)
 	}
 }
 
-// StorePolicy stores a given policy that needs to be executed in the policy runner.
-func (pr *policyRunner) StorePolicies(policies ...certification.Policy) {
-	// pr.Policies = append(pr.Policies, policies...)
-}
-
 // GetResults will return the results of policy execution
-func (pr *policyRunner) GetResults() Results {
+func (pr *PolicyRunner) GetResults() Results {
 	return pr.Results
-}
-
-type Results struct {
-	TestedImage string
-	Passed      []certification.Policy
-	Failed      []certification.Policy
-	Errors      []certification.Policy
-}
-
-type UserResponse struct {
-	Image             string                 `json:"image" xml:"image"`
-	ValidationVersion version.VersionContext `json:"validation_lib_version" xml:"validationLibVersion"`
-	Results           UserResponseText       `json:"results" xml:"results"`
-}
-
-type UserResponseText struct {
-	Passed []policy.Metadata
-	Failed []policy.PolicyInfo
-	Errors []policy.HelpText
-	// TODO: Errors does not actually include any error information
-	// and it needs to do so.
 }
