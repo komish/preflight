@@ -5,22 +5,22 @@ import "github.com/komish/preflight/certification/errors"
 // +preflight:codegen:replace-template-with-actual-name
 func TemplatePolicy() *Definition {
 	return &Definition{
-		ValidatorFunc: isTemplateValidatorFunc,
-		Metadata:      isTemplatePolicyMeta,
-		HelpText:      isTemplatePolicyHelp,
+		ValidatorFunc: templateValidatorFunc,
+		Metadata:      templatePolicyMeta,
+		HelpText:      templatePolicyHelp,
 	}
 }
 
 // +preflight:codegen:replace-template-with-actual-name
 // +preflight:codegen:todos-prompt
-var isTemplateValidatorFunc = func(image string) (bool, error) {
+var templateValidatorFunc = func(image string) (bool, error) {
 	// TODO implement validation logic here and change return value
 	return false, errors.ErrFeatureNotImplemented
 }
 
 // +preflight:codegen:replace-template-with-actual-name
 // +preflight:codegen:todos-prompt
-var isTemplatePolicyMeta = Metadata{
+var templatePolicyMeta = Metadata{
 	Description:      "TODO description here",
 	Level:            "TODO specify level here",
 	KnowledgeBaseURL: "TODO provide KB url",
@@ -29,7 +29,7 @@ var isTemplatePolicyMeta = Metadata{
 
 // +preflight:codegen:replace-template-with-actual-name
 // +preflight:codegen:todos-prompt
-var isTemplatePolicyHelp = HelpText{
+var templatePolicyHelp = HelpText{
 	Message:    "TODO policy message here",
 	Suggestion: "TODO suggestion for meeting the policy criteria here",
 }
