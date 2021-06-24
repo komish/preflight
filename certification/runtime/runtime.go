@@ -12,9 +12,9 @@ type Config struct {
 }
 type Results struct {
 	TestedImage string
-	Passed      []certification.Policy
-	Failed      []certification.Policy
-	Errors      []certification.Policy
+	Passed      []certification.PolicyWithRuntimeLog
+	Failed      []certification.PolicyWithRuntimeLog
+	Errors      []certification.PolicyWithRuntimeLog
 }
 
 type UserResponse struct {
@@ -24,9 +24,9 @@ type UserResponse struct {
 }
 
 type UserResponseText struct {
-	Passed []certification.Metadata
-	Failed []certification.PolicyInfo
-	Errors []certification.HelpText
+	Passed []certification.PolicyMetadataWithLog
+	Failed []certification.PolicyInfoWithLog
+	Errors []certification.PolicyHelpTextWithLog
 	// TODO: Errors does not actually include any error information
 	// and it needs to do so.
 }

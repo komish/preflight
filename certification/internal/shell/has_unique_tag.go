@@ -7,8 +7,8 @@ import (
 
 type HasUniqueTagPolicy struct{}
 
-func (p *HasUniqueTagPolicy) Validate(image string) (bool, error) {
-	return false, errors.ErrFeatureNotImplemented
+func (p *HasUniqueTagPolicy) Validate(image string) (bool, []byte, error) {
+	return false, []byte{}, errors.ErrFeatureNotImplemented
 }
 func (p *HasUniqueTagPolicy) Name() string {
 	return "HasUniqueTag"

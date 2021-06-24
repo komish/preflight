@@ -7,9 +7,10 @@ import (
 
 type HasLicensePolicy struct{}
 
-func (p *HasLicensePolicy) Validate(image string) (bool, error) {
-	return false, errors.ErrFeatureNotImplemented
+func (p *HasLicensePolicy) Validate(image string) (bool, []byte, error) {
+	return false, []byte{}, errors.ErrFeatureNotImplemented
 }
+
 func (p *HasLicensePolicy) Name() string {
 	return "HasLicense"
 }

@@ -2,7 +2,7 @@ package certification
 
 // ValidatorFunc describes a function that, when executed, will check that an
 // artifact (e.g. operator bundle) complies with a given policy.
-type ValidatorFunc = func(string) (bool, error)
+type ValidatorFunc = func(string) (bool, []byte, error)
 
 type genericPolicyDefinition struct {
 	name        string
@@ -15,7 +15,7 @@ func (pd *genericPolicyDefinition) Name() string {
 	return pd.name
 }
 
-func (pd *genericPolicyDefinition) Validate(image string) (bool, error) {
+func (pd *genericPolicyDefinition) Validate(image string) (bool, []byte, error) {
 	return pd.validatorFn(image)
 }
 

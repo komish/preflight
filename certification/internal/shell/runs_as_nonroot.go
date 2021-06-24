@@ -8,8 +8,8 @@ import (
 type RunAsNonRootPolicy struct {
 }
 
-func (p *RunAsNonRootPolicy) Validate(image string) (bool, error) {
-	return false, errors.ErrFeatureNotImplemented
+func (p *RunAsNonRootPolicy) Validate(image string) (bool, []byte, error) {
+	return false, []byte{}, errors.ErrFeatureNotImplemented
 }
 
 func (p *RunAsNonRootPolicy) Name() string {

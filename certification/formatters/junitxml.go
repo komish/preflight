@@ -30,6 +30,7 @@ type JUnitTestCase struct {
 	Time        string            `xml:"time,attr"`
 	SkipMessage *JUnitSkipMessage `xml:"skipped,omitempty"`
 	Failure     *JUnitFailure     `xml:"failure,omitempty"`
+	SystemOut   string            `xml:"system-out,omitempty"`
 }
 
 type JUnitSkipMessage struct {
@@ -62,9 +63,10 @@ func junitXMLFormatter(r runtime.Results) ([]byte, error) {
 	for _, result := range r.Passed {
 		testCase := JUnitTestCase{
 			Classname: response.Image,
-			Name:      result.Name(),
+			Name:      result.Policy.Name(),
 			Time:      "0s",
 			Failure:   nil,
+			SystemOut: string(result.Log),
 		}
 		testsuite.TestCases = append(testsuite.TestCases, testCase)
 	}
@@ -72,13 +74,15 @@ func junitXMLFormatter(r runtime.Results) ([]byte, error) {
 	for _, result := range append(r.Errors, r.Failed...) {
 		testCase := JUnitTestCase{
 			Classname: response.Image,
-			Name:      result.Name(),
-			Time:      "0s",
+			Name:      result.Policy.Name(),
+
+			Time: "0s",
 			Failure: &JUnitFailure{
 				Message:  "Failed",
 				Type:     "",
-				Contents: fmt.Sprintf("%s: Suggested Fix: %s", result.Help().Message, result.Help().Suggestion),
+				Contents: fmt.Sprintf("%s: Suggested Fix: %s", result.Policy.Help().Message, result.Policy.Help().Suggestion),
 			},
+			SystemOut: string(result.Log),
 		}
 		testsuite.TestCases = append(testsuite.TestCases, testCase)
 	}

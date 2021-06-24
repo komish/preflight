@@ -7,8 +7,8 @@ import (
 
 type HasNoProhibitedPackagesPolicy struct{}
 
-func (p *HasNoProhibitedPackagesPolicy) Validate(image string) (bool, error) {
-	return false, errors.ErrFeatureNotImplemented
+func (p *HasNoProhibitedPackagesPolicy) Validate(image string) (bool, []byte, error) {
+	return false, []byte{}, errors.ErrFeatureNotImplemented
 }
 func (p *HasNoProhibitedPackagesPolicy) Name() string {
 	return "HasNoProhibitedPackages"

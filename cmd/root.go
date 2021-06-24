@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"io/ioutil"
 	"os"
 	"strings"
 
@@ -47,6 +48,17 @@ var rootCmd = &cobra.Command{
 		engine.ExecutePolicies()
 		results := engine.Results()
 
+		// write logs
+		// TODO dynamically accept logging directories
+		logs := engine.Logs()
+		for file, data := range logs {
+			err := ioutil.WriteFile(file, data, 0644)
+			if err != nil {
+				return fmt.Errorf("%w: unable to write log file %s", err, file)
+			}
+		}
+
+		// return results to the user
 		formattedResults, err := formatter.Format(results)
 		if err != nil {
 			return err

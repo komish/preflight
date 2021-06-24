@@ -8,8 +8,8 @@ import (
 type HasRequiredLabelPolicy struct {
 }
 
-func (p *HasRequiredLabelPolicy) Validate(image string) (bool, error) {
-	return false, errors.ErrFeatureNotImplemented
+func (p *HasRequiredLabelPolicy) Validate(image string) (bool, []byte, error) {
+	return false, []byte{}, errors.ErrFeatureNotImplemented
 }
 
 func (p *HasRequiredLabelPolicy) Name() string {

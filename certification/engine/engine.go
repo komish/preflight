@@ -32,7 +32,12 @@ type PolicyRunner interface {
 	ExecutePolicies()
 	// StorePolicies(...[]certification.Policy)
 	Results() runtime.Results
+	Logs() LogMap
 }
+
+// LogMap is a map of logfiles to write (the key), and the data to write to
+// it (the byte slice).
+type LogMap = map[string][]byte
 
 func NewForConfig(config runtime.Config) (PolicyRunner, error) {
 	if len(config.EnabledPolicies) == 0 {

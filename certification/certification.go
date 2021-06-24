@@ -4,7 +4,7 @@ package certification
 // to use and identify a given policy.
 type Policy interface {
 	// Validate whether the asset enforces the policy.
-	Validate(image string) (result bool, err error)
+	Validate(image string) (result bool, log []byte, err error)
 	// return the name of the policy
 	Name() string
 	// return the policy's metadata
@@ -27,7 +27,29 @@ type HelpText struct {
 	Suggestion string `json:"suggestion" xml:"suggestion"`
 }
 
+type Log = []byte
+
+type PolicyWithRuntimeLog struct {
+	Policy Policy
+	Log    Log `json:"log,omitempty" xml:"log,omitempty"`
+}
+
 type PolicyInfo struct {
 	Metadata `json:"metadata" xml:"metadata"`
 	HelpText `json:"helptext"`
+}
+
+type PolicyMetadataWithLog struct {
+	Metadata
+	Log `json:"log,omitempty" xml:"log,omitempty"`
+}
+
+type PolicyInfoWithLog struct {
+	PolicyInfo
+	Log `json:"log,omitempty" xml:"log,omitempty"`
+}
+
+type PolicyHelpTextWithLog struct {
+	HelpText
+	Log `json:"log,omitempty" xml:"log,omitempty"`
 }

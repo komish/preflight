@@ -7,8 +7,8 @@ import (
 
 type HasMinimalVulnerabilitiesPolicy struct{}
 
-func (p *HasMinimalVulnerabilitiesPolicy) Validate(image string) (bool, error) {
-	return false, errors.ErrFeatureNotImplemented
+func (p *HasMinimalVulnerabilitiesPolicy) Validate(image string) (bool, []byte, error) {
+	return false, []byte{}, errors.ErrFeatureNotImplemented
 }
 func (p *HasMinimalVulnerabilitiesPolicy) Name() string {
 	return "HasMinimalVulnerabilities"
