@@ -1,6 +1,8 @@
 .DEFAULT_GOAL:=help
 
 VERSION=$(shell git rev-parse HEAD)
+# Image URL to use all building/pushing image targets
+IMG ?= "quay.io/komish/preflight:$(VERSION)"
 
 .PHONY: build
 build:
@@ -18,3 +20,11 @@ test:
 .PHONY: vet
 vet:
 	go vet ./...
+
+.PHONY: image
+image:
+	docker build . -t $(IMG)
+
+.PHONY: push
+push:
+	docker push $(IMG)
