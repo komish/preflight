@@ -1,0 +1,24 @@
+# Default values for preflight.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+toolImage:
+  repository: quay.io/opdev/preflight
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: ""
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+# Mandatory. provide the image to be verified by Preflight tool
+containerImageToVerify:
+
+# Flags to pass into Preflight tool:
+#  -c, --enabled-checks string   Which checks to apply to the image to ensure compliance.
+#                                (Env) PREFLIGHT_ENABLED_CHECKS
+#  -h, --help                    help for preflight
+#  -o, --output-format string    The format for the check test results.
+#                                (Env) PREFLIGHT_OUTPUT_FORMAT (Default) json
+toolFlags: "--enabled-checks --output-format json"

@@ -1,0 +1,19 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "preflight.name" . }}
+  labels:
+    {{- include "preflight.labels" . | nindent 4 }}
+spec:
+  template:
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+      - name: {{ include "preflight.name" . }}
+        image: "{{ .Values.toolImage.repository }}:{{ .Values.toolImage.tag | default .Chart.AppVersion }}"
+        command: ["preflight",  "{{ .Values.containerImageToVerify }}", "{{ .Values.toolFlags }}"]
+      restartPolicy: Never
+  backoffLimit: 4

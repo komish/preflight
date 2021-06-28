@@ -18,3 +18,7 @@ test:
 .PHONY: vet
 vet:
 	go vet ./...
+
+.PHONY: helm-build
+helm-build:
+	helm package helm/preflight
