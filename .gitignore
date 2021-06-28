@@ -4,6 +4,9 @@
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
 
+# Preflight log files
+preflight-*.log
+
 # Binaries for programs and plugins
 *.exe
 *.exe~
