@@ -72,20 +72,22 @@ var hasMinimalVulnerabilitiesCheck certification.Check = &podmanexec.HasMinimalV
 var hasUniqueTagCheck certification.Check = &podmanexec.HasUniqueTagCheck{}
 var hasNoProhibitedCheck certification.Check = &podmanexec.HasNoProhibitedPackagesCheck{}
 var validateOperatorBundle certification.Check = &podmanexec.ValidateOperatorBundlePolicy{}
+var scorecardBasicCheckSpecTest certification.Check = &podmanexec.ScorecardBasicCheckSpecTest{}
 
 var nameToChecksMap = map[string]certification.Check{
 	// NOTE(komish): these checks do not all apply to bundles, which is the current
 	// scope. Eventually, I expect we'll split out container checks to their
 	// on map and pass it to the CheckEngine when the right cobra command is invoked.
-	runAsNonRootCheck.Name():              runAsNonRootCheck,
-	underLayerMaxCheck.Name():             underLayerMaxCheck,
-	hasRequiredLabelCheck.Name():          hasRequiredLabelCheck,
-	basedOnUbiCheck.Name():                basedOnUbiCheck,
-	hasLicenseCheck.Name():                hasLicenseCheck,
-	hasMinimalVulnerabilitiesCheck.Name(): hasMinimalVulnerabilitiesCheck,
-	hasUniqueTagCheck.Name():              hasUniqueTagCheck,
-	hasNoProhibitedCheck.Name():           hasNoProhibitedCheck,
-	validateOperatorBundle.Name():         validateOperatorBundle,
+	runAsNonRootCheck.Name():                   runAsNonRootCheck,
+	underLayerMaxCheck.Name():                  underLayerMaxCheck,
+	hasRequiredLabelCheck.Name():               hasRequiredLabelCheck,
+	basedOnUbiCheck.Name():                     basedOnUbiCheck,
+	hasLicenseCheck.Name():                     hasLicenseCheck,
+	hasMinimalVulnerabilitiesCheck.Name():      hasMinimalVulnerabilitiesCheck,
+	hasUniqueTagCheck.Name():                   hasUniqueTagCheck,
+	hasNoProhibitedCheck.Name():                hasNoProhibitedCheck,
+	validateOperatorBundle.Name():              validateOperatorBundle,
+	scorecardBasicCheckSpecTest.Name():         scorecardBasicCheckSpecTest,
 }
 
 func AllChecks() []string {
