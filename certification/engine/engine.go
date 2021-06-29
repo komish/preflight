@@ -73,6 +73,7 @@ var hasUniqueTagCheck certification.Check = &podmanexec.HasUniqueTagCheck{}
 var hasNoProhibitedCheck certification.Check = &podmanexec.HasNoProhibitedPackagesCheck{}
 var validateOperatorBundle certification.Check = &podmanexec.ValidateOperatorBundlePolicy{}
 var scorecardBasicCheckSpecTest certification.Check = &podmanexec.ScorecardBasicCheckSpecTest{}
+var scorecardOlmSuiteTest certification.Check = &podmanexec.ScorecardOlmSuiteTest{}
 
 var nameToChecksMap = map[string]certification.Check{
 	// NOTE(komish): these checks do not all apply to bundles, which is the current
@@ -88,6 +89,7 @@ var nameToChecksMap = map[string]certification.Check{
 	hasNoProhibitedCheck.Name():                hasNoProhibitedCheck,
 	validateOperatorBundle.Name():              validateOperatorBundle,
 	scorecardBasicCheckSpecTest.Name():         scorecardBasicCheckSpecTest,
+	scorecardOlmSuiteTest.Name():               scorecardOlmSuiteTest,
 }
 
 func AllChecks() []string {
