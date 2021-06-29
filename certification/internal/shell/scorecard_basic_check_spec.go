@@ -13,19 +13,19 @@ import (
     "github.com/itchyny/gojq"
 )
 
-type ScorecardOlmSuiteCheck struct{}
-const scorecardOlmSuiteResult string = "operator_bundle_scorecard_OlmSuiteCheck.json"
+type ScorecardBasicSpecCheck struct{}
+const scorecardBasicCheckResult string = "operator_bundle_scorecard_BasicSpecCheck.json"
 
-func (p *ScorecardOlmSuiteCheck) Validate(bundleImage string, logger *logrus.Logger) (bool, error) {
+func (p *ScorecardBasicSpecCheck) Validate(bundleImage string, logger *logrus.Logger) (bool, error) {
     
     currentDir, err := os.Getwd()
     if err != nil {
         logger.Error("unable to get current directory: ", err)
         return false, err
     }
-	
-    artifactsDir := filepath.Join(currentDir,"/artifacts")
-	
+
+    artifactsDir := filepath.Join(currentDir, "/artifacts")
+    
     err = os.MkdirAll(artifactsDir, 0777)
     if err != nil {
         logger.Error("unable to create artifactsDir: ", err)
@@ -34,12 +34,12 @@ func (p *ScorecardOlmSuiteCheck) Validate(bundleImage string, logger *logrus.Log
     
     tmpDir, err := os.MkdirTemp("", "preflight")
     if err != nil {
-        logger.Error("unable to create TempDir: ", err)
+        logger.Error("unable to create tmpDir: ", err)
         return false, err
     }
-	
+
     defer os.RemoveAll(tmpDir)
-	
+    
     bundleDir := filepath.Join(tmpDir,"/bundle")
     
     err = os.MkdirAll(bundleDir, 0777)
@@ -57,7 +57,7 @@ func (p *ScorecardOlmSuiteCheck) Validate(bundleImage string, logger *logrus.Log
     // Need to be in the parent directory of the bundle contents
     err = os.Chdir(tmpDir)
     if err != nil {
-        logger.Error("unable to change to",tmpDir,": ", err)
+        logger.Error("unable to change dir: ", err)
         return false, err
     }
     
@@ -71,7 +71,7 @@ func (p *ScorecardOlmSuiteCheck) Validate(bundleImage string, logger *logrus.Log
     }
     
     destinationFile := filepath.Join(tmpDir,"/config.yaml")
-	
+    
     err = ioutil.WriteFile(destinationFile, input, 0777)
     if err != nil {
         logger.Error("unable to write to config.yaml file: ", err)
@@ -84,55 +84,57 @@ func (p *ScorecardOlmSuiteCheck) Validate(bundleImage string, logger *logrus.Log
         return false, err
     }
     
-    logger.Debug("Running Scorecard Check for ",bundleImage)
+    logger.Debugf("Running Scorecard check for ",bundleImage)
     
-    stdouterr, err = exec.Command("operator-sdk", "scorecard",
-                                            "--config", destinationFile,
-					    "--selector=suite=olm",
-					    "--output", "json", "bundle").CombinedOutput()
+    stdouterr, err = exec.Command("operator-sdk", "scorecard",   
+                                  "--config", destinationFile,
+                                  "--selector=test=basic-check-spec-test",
+                                  "--output", "json", "bundle").CombinedOutput()
     
-    scorecardFile := filepath.Join(artifactsDir,"/",scorecardOlmSuiteResult)
+    scorecardFile := filepath.Join(artifactsDir,"/",scorecardBasicCheckResult)
     
     err = ioutil.WriteFile(scorecardFile, stdouterr, 0644)
     if err != nil {
         logger.Error("unable to copy result to /artifacts subdir: ", err)
         return false, err
     }
-	
+
     // we must send gojq a interface{}, so we have to convert our inspect output to that type
     var inspectData interface{}
-
+    
     err = json.Unmarshal(stdouterr, &inspectData)
     if err != nil {
-	logger.Error("unable to parse scorecard json output")
-	logger.Debug("error Unmarshaling scorecard json output: ", err)
-	logger.Trace("failure in attempt to convert the raw bytes from `operator-sdk scorecard` to a interface{}")
+        logger.Error("unable to parse scorecard json output")
+        logger.Debug("error Unmarshaling scorecard json output: ", err)
+        logger.Debug("operator_sdk failed to execute.")
+        logger.Trace("failure in attempt to convert the raw bytes from `operator-sdk scorecard` to a interface{}")
         return false, err
     }
 
     query, err := gojq.Parse(".items[].status.results[] | .name, .state")
     if err != nil {
-	logger.Error("unable to parse scorecard json output")
-	logger.Debug("unable to parse :", err)
-	return false, err
+        logger.Error("unable to parse scorecard json output")
+        logger.Debug("unable to parse :", err)
+        return false, err
     }
 
     // gojq expects us to iterate in the event that our query returned multiple matching values, but we only expect one.
     iter := query.Run(inspectData)
-	
-    foundTestFailed := false
     
-    logger.Info("scorecard outuput")
-	
+    foundTestFailed := false
+
+    logger.Info("scorecard output")
+    
     for {
         v, ok := iter.Next()
         if !ok {
             logger.Warn("Did not receive any test result information when parsing scorecard output.")
-            break
+	    // in this case, there was no data returned from jq, so we need to fail the check.
+	    break
         }
         if err, ok := v.(error); ok {
             logger.Error("unable to parse scorecard output")
-            logger.Debug("unable to successfully parse the scorecard output",err)
+            logger.Debug("unable to successfully parse the scorecard output", err)
             return false, err
         }
         //test fails but keeps going listing out all tests
@@ -140,28 +142,27 @@ func (p *ScorecardOlmSuiteCheck) Validate(bundleImage string, logger *logrus.Log
         logger.Info(s)
         if strings.Contains(s, "fail") {
             foundTestFailed = true
-        } 
-   }
-   return !foundTestFailed, nil
+        }
+    }
+    return !foundTestFailed, nil
 }
 
-func (p *ScorecardOlmSuiteCheck) Name() string {
-    return "ScorecardOlmSuiteCheck"
+func (p *ScorecardBasicSpecCheck) Name() string {
+    return "ScorecardBasicSpecCheck"
 }
 
-func (p *ScorecardOlmSuiteCheck) Metadata() certification.Metadata {
+func (p *ScorecardBasicSpecCheck) Metadata() certification.Metadata {
     return certification.Metadata{
-        Description:      "OLM Test Suite Check",
+        Description:      "Check to make sure that all CRs have a spec block.",
         Level:            "best",
         KnowledgeBaseURL: "https://sdk.operatorframework.io/docs/advanced-topics/scorecard/scorecard/#overview", // Placeholder
-        CheckURL:         "https://sdk.operatorframework.io/docs/advanced-topics/scorecard/scorecard/#olm-test-suite",
+        CheckURL:        "https://sdk.operatorframework.io/docs/advanced-topics/scorecard/scorecard/#basic-test-suite",
     }
 }
 
-func (p *ScorecardOlmSuiteCheck) Help() certification.HelpText {
+func (p *ScorecardBasicSpecCheck) Help() certification.HelpText {
     return certification.HelpText{
-        Message:    "Operator-sdk scorecard OLM Test Suite. One or more checks failed.",
-        Suggestion: "See scorecard output for details, artifacts/operator_bundle_scorecard_OlmSuiteCheck.json",
+        Message:    "Operator-sdk scorecard basic spec check failed.",
+        Suggestion: "Make sure that all CRs have a spec block",
     }
 }
-

@@ -72,8 +72,8 @@ var hasMinimalVulnerabilitiesCheck certification.Check = &podmanexec.HasMinimalV
 var hasUniqueTagCheck certification.Check = &podmanexec.HasUniqueTagCheck{}
 var hasNoProhibitedCheck certification.Check = &podmanexec.HasNoProhibitedPackagesCheck{}
 var validateOperatorBundle certification.Check = &podmanexec.ValidateOperatorBundlePolicy{}
-var scorecardBasicCheckSpecTest certification.Check = &podmanexec.ScorecardBasicCheckSpecTest{}
-var scorecardOlmSuiteTest certification.Check = &podmanexec.ScorecardOlmSuiteTest{}
+var scorecardBasicSpecCheck certification.Check = &podmanexec.ScorecardBasicSpecCheck{}
+var scorecardOlmSuiteCheck certification.Check = &podmanexec.ScorecardOlmSuiteCheck{}
 
 var nameToChecksMap = map[string]certification.Check{
 	// NOTE(komish): these checks do not all apply to bundles, which is the current
@@ -88,8 +88,8 @@ var nameToChecksMap = map[string]certification.Check{
 	hasUniqueTagCheck.Name():                   hasUniqueTagCheck,
 	hasNoProhibitedCheck.Name():                hasNoProhibitedCheck,
 	validateOperatorBundle.Name():              validateOperatorBundle,
-	scorecardBasicCheckSpecTest.Name():         scorecardBasicCheckSpecTest,
-	scorecardOlmSuiteTest.Name():               scorecardOlmSuiteTest,
+	scorecardBasicSpecCheck.Name():             scorecardBasicSpecCheck,
+	scorecardOlmSuiteCheck.Name():              scorecardOlmSuiteCheck,
 }
 
 func AllChecks() []string {
