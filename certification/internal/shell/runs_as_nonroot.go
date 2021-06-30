@@ -10,7 +10,9 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-type RunAsNonRootCheck struct{}
+type RunAsNonRootCheck struct {
+	certification.DefaultCheck
+}
 
 func (p *RunAsNonRootCheck) Validate(image string, logger *logrus.Logger) (bool, error) {
 	cmd := exec.Command("podman", "run", "-it", "--rm", "--entrypoint", "id", image, "-u")
@@ -62,4 +64,8 @@ func (p *RunAsNonRootCheck) Help() certification.HelpText {
 		Message:    "A container that does not specify a non-root user will fail the automatic certification, and will be subject to a manual review before the container can be approved for publication",
 		Suggestion: "Indicate a specific USER in the dockerfile or containerfile",
 	}
+}
+
+func (p *RunAsNonRootCheck) IsBundleCompatible() bool {
+	return false
 }

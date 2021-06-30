@@ -9,7 +9,9 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-type HasRequiredLabelsCheck struct{}
+type HasRequiredLabelsCheck struct {
+	certification.DefaultCheck
+}
 
 func (p *HasRequiredLabelsCheck) Validate(image string, logger *logrus.Logger) (bool, error) {
 	// TODO: if we're going have the image json on disk already, we should use it here instead of podman inspect-ing.

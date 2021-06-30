@@ -29,6 +29,14 @@ func (pd *genericCheckDefinition) Help() HelpText {
 	return pd.helpText
 }
 
+func (pd *genericCheckDefinition) IsBundleCheck() bool {
+	return false
+}
+
+func (pd *genericCheckDefinition) IsBundleCompatible() bool {
+	return true
+}
+
 // NewGenericCheck returns a basic check implementation with the provided
 // inputs. This is to enable a quick way to add additional checks to the default
 // checks already enforced.

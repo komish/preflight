@@ -9,7 +9,9 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-type HasNoProhibitedPackagesCheck struct{}
+type HasNoProhibitedPackagesCheck struct {
+	certification.DefaultCheck
+}
 
 func (p *HasNoProhibitedPackagesCheck) Validate(image string, logger *logrus.Logger) (bool, error) {
 	stdouterr, err := exec.Command("podman", "run", "-it", "--rm", "--entrypoint", "rpm", image, "-qa", "--queryformat", "%{NAME}\n").CombinedOutput()

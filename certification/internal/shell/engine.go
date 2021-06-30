@@ -30,6 +30,7 @@ func (e *CheckEngine) ExecuteChecks(logger *logrus.Logger) {
 		checkStartTime := time.Now()
 		e.results.TestedImage = e.Image
 		targetImage := e.Image
+		var isBundle bool
 
 		// check if the image needs downloading
 		if !e.isDownloaded {
@@ -52,6 +53,14 @@ func (e *CheckEngine) ExecuteChecks(logger *logrus.Logger) {
 
 				logger.Debugf("Tarball path: %s", imageTarballPath)
 				defer os.RemoveAll(filepath.Dir(imageTarballPath))
+
+				labels, err := GetLabelsForImage(e.Image, logger)
+				if err != nil {
+					logger.Error("unable to get labels from downloaded image:", err)
+					e.results.Errors = append(e.results.Errors, runtime.Result{Check: check, ElapsedTime: time.Since(checkStartTime)})
+					continue
+				}
+				isBundle = containsBundleLabels(*labels)
 
 				localImagePath, err = e.ExtractContainerTar(imageTarballPath, logger)
 				if err != nil {
@@ -76,6 +85,12 @@ func (e *CheckEngine) ExecuteChecks(logger *logrus.Logger) {
 		checkStartTime = time.Now()
 
 		// run the validation
+		if !isBundle && check.IsBundleCheck() {
+			continue
+		}
+		if isBundle && !check.IsBundleCompatible() {
+			continue
+		}
 		passed, err := check.Validate(targetImage, logger)
 
 		checkElapsedTime := time.Since(checkStartTime)
@@ -157,4 +172,9 @@ func (e *CheckEngine) ContainerIsRemote(path string, logger *logrus.Logger) (boo
 	// TODO: Implement, for not this is just returning
 	// that the resource is remote and needs to be pulled.
 	return true, nil
+}
+
+func containsBundleLabels(labels map[string]string) bool {
+	_, present := labels["operators.operatorframework.io.bundle.manifests.v1"]
+	return present
 }

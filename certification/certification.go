@@ -13,6 +13,10 @@ type Check interface {
 	Metadata() Metadata
 	// Help return the check's help text.
 	Help() HelpText
+	// IsBundleCheck returns whether this check is for a bundle or not
+	IsBundleCheck() bool
+	// IsBundleCompatible returns whether this check is suitable for a bundle
+	IsBundleCompatible() bool
 }
 
 // Metadata contains useful information regarding the check
@@ -32,4 +36,34 @@ type HelpText struct {
 type CheckInfo struct {
 	Metadata `json:"metadata" xml:"metadata"`
 	HelpText `json:"helptext"`
+}
+
+func NewCheck() Check {
+	return &DefaultCheck{}
+}
+
+type DefaultCheck struct{}
+
+func (dc *DefaultCheck) Validate(image string, logger *logrus.Logger) (bool, error) {
+	return false, nil
+}
+
+func (dc *DefaultCheck) Name() string {
+	return ""
+}
+
+func (dc *DefaultCheck) Metadata() Metadata {
+	return Metadata{}
+}
+
+func (dc *DefaultCheck) Help() HelpText {
+	return HelpText{}
+}
+
+func (dc *DefaultCheck) IsBundleCheck() bool {
+	return false
+}
+
+func (dc *DefaultCheck) IsBundleCompatible() bool {
+	return true
 }

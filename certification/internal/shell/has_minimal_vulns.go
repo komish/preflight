@@ -6,7 +6,9 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-type HasMinimalVulnerabilitiesCheck struct{}
+type HasMinimalVulnerabilitiesCheck struct {
+	certification.DefaultCheck
+}
 
 func (p *HasMinimalVulnerabilitiesCheck) Validate(image string, logger *logrus.Logger) (bool, error) {
 	return false, errors.ErrFeatureNotImplemented

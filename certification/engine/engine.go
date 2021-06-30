@@ -71,7 +71,7 @@ var hasLicenseCheck certification.Check = &shell.HasLicenseCheck{}
 var hasMinimalVulnerabilitiesCheck certification.Check = &shell.HasMinimalVulnerabilitiesCheck{}
 var hasUniqueTagCheck certification.Check = &shell.HasUniqueTagCheck{}
 var hasNoProhibitedCheck certification.Check = &shell.HasNoProhibitedPackagesCheck{}
-var validateOperatorBundle certification.Check = &shell.ValidateOperatorBundlePolicy{}
+var validateOperatorBundleCheck certification.Check = &shell.ValidateOperatorBundleCheck{}
 
 var nameToChecksMap = map[string]certification.Check{
 	// NOTE(komish): these checks do not all apply to bundles, which is the current
@@ -85,7 +85,7 @@ var nameToChecksMap = map[string]certification.Check{
 	hasMinimalVulnerabilitiesCheck.Name(): hasMinimalVulnerabilitiesCheck,
 	hasUniqueTagCheck.Name():              hasUniqueTagCheck,
 	hasNoProhibitedCheck.Name():           hasNoProhibitedCheck,
-	validateOperatorBundle.Name():         validateOperatorBundle,
+	validateOperatorBundleCheck.Name():    validateOperatorBundleCheck,
 }
 
 func AllChecks() []string {

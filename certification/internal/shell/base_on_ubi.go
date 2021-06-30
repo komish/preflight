@@ -8,7 +8,9 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-type BaseOnUBICheck struct{}
+type BaseOnUBICheck struct {
+	certification.DefaultCheck
+}
 
 func (p *BaseOnUBICheck) Validate(image string, logger *logrus.Logger) (bool, error) {
 	stdouterr, err := exec.Command("podman", "run", "--rm", "-it", "--entrypoint", "cat", image, "/etc/os-release").CombinedOutput()
@@ -52,4 +54,8 @@ func (p *BaseOnUBICheck) Help() certification.HelpText {
 		Message:    "It is recommened that your image be based upon the Red Hat Universal Base Image (UBI)",
 		Suggestion: "Change the FROM directive in your Dockerfile or Containerfile to FROM registry.access.redhat.com/ubi8/ubi",
 	}
+}
+
+func (p *BaseOnUBICheck) IsBundleCompatible() bool {
+	return false
 }

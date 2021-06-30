@@ -10,7 +10,9 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-type HasUniqueTagCheck struct{}
+type HasUniqueTagCheck struct {
+	certification.DefaultCheck
+}
 
 func (p *HasUniqueTagCheck) Validate(image string, logger *logrus.Logger) (bool, error) {
 	imageName := strings.Split(image, ":")[0]

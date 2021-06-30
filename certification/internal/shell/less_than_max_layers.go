@@ -14,7 +14,9 @@ const (
 	acceptableLayerMax = 40
 )
 
-type UnderLayerMaxCheck struct{}
+type UnderLayerMaxCheck struct {
+	certification.DefaultCheck
+}
 
 func (p *UnderLayerMaxCheck) Validate(image string, logger *logrus.Logger) (bool, error) {
 	// TODO: if we're going have the image json on disk already, we should use it here instead of podman inspect-ing.

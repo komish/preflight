@@ -8,10 +8,11 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-type ValidateOperatorBundlePolicy struct {
+type ValidateOperatorBundleCheck struct {
+	certification.DefaultCheck
 }
 
-func (p ValidateOperatorBundlePolicy) Validate(bundle string, logger *logrus.Logger) (bool, error) {
+func (p ValidateOperatorBundleCheck) Validate(bundle string, logger *logrus.Logger) (bool, error) {
 	stdouterr, err := exec.Command("operator-sdk", "bundle", "validate", "-b", "podman", "--verbose", bundle).CombinedOutput()
 	if err != nil {
 		logger.Error("Error will executing operator-sdk validate bundle: ", err)
@@ -27,11 +28,11 @@ func (p ValidateOperatorBundlePolicy) Validate(bundle string, logger *logrus.Log
 	return false, nil
 }
 
-func (p ValidateOperatorBundlePolicy) Name() string {
+func (p ValidateOperatorBundleCheck) Name() string {
 	return "ValidateOperatorBundle"
 }
 
-func (p ValidateOperatorBundlePolicy) Metadata() certification.Metadata {
+func (p ValidateOperatorBundleCheck) Metadata() certification.Metadata {
 	return certification.Metadata{
 		Description:      "Validating Bundle image",
 		Level:            "best",
@@ -40,9 +41,13 @@ func (p ValidateOperatorBundlePolicy) Metadata() certification.Metadata {
 	}
 }
 
-func (p ValidateOperatorBundlePolicy) Help() certification.HelpText {
+func (p ValidateOperatorBundleCheck) Help() certification.HelpText {
 	return certification.HelpText{
 		Message:    "Operator sdk validation test failed, this test checks if it can validate the content and format of the operator bundle",
 		Suggestion: "Valid bundles are definied by bundle spec, so make sure that this bundle conforms to that spec. More Information: https://github.com/operator-framework/operator-registry/blob/master/docs/design/operator-bundle.md",
 	}
+}
+
+func (p ValidateOperatorBundleCheck) IsBundleCheck() bool {
+	return true
 }

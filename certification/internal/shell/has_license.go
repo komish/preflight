@@ -8,7 +8,9 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-type HasLicenseCheck struct{}
+type HasLicenseCheck struct {
+	certification.DefaultCheck
+}
 
 func (p *HasLicenseCheck) Validate(image string, logger *logrus.Logger) (bool, error) {
 	stdouterr, err := exec.Command("podman", "run", "-it", "--rm", "--entrypoint", "ls", image, "-A", "/licenses").CombinedOutput()
