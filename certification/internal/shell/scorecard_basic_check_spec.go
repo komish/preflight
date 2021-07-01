@@ -32,64 +32,11 @@ func (p *ScorecardBasicSpecCheck) Validate(bundleImage string, logger *logrus.Lo
         return false, err
     }
     
-    tmpDir, err := os.MkdirTemp("", "preflight")
-    if err != nil {
-        logger.Error("unable to create tmpDir: ", err)
-        return false, err
-    }
-
-    defer os.RemoveAll(tmpDir)
-    
-    bundleDir := filepath.Join(tmpDir,"/bundle")
-    
-    err = os.MkdirAll(bundleDir, 0777)
-    if err != nil {
-        logger.Error("unable to create subdirs: ", err)
-        return false, err
-    }
-
-    stdouterr, err := exec.Command("oc", "image", "extract", "--path", "/:"+bundleDir, bundleImage).CombinedOutput()
-    if err != nil {
-        logger.Error("unable to execute oc image extract on the image: ", err)
-        return false, err
-    }
-
-    // Need to be in the parent directory of the bundle contents
-    err = os.Chdir(tmpDir)
-    if err != nil {
-        logger.Error("unable to change dir: ", err)
-        return false, err
-    }
-    
-    configFile := filepath.Join(bundleDir,"/tests/scorecard/config.yaml")
-
-    //copy config file to the root
-    input, err := ioutil.ReadFile(configFile)
-    if err != nil {
-        logger.Error("unable to read config.yaml: ", err)
-        return false, err
-    }
-    
-    destinationFile := filepath.Join(tmpDir,"/config.yaml")
-    
-    err = ioutil.WriteFile(destinationFile, input, 0777)
-    if err != nil {
-        logger.Error("unable to write to config.yaml file: ", err)
-        return false, err
-    }
-    
-    _, err = exec.Command("chmod", "-R", "go+r", "./").CombinedOutput()
-    if err != nil {
-        logger.Error("unable to execute chmod: ", err)
-        return false, err
-    }
-    
-    logger.Debugf("Running Scorecard check for ",bundleImage)
-    
-    stdouterr, err = exec.Command("operator-sdk", "scorecard",   
-                                  "--config", destinationFile,
-                                  "--selector=test=basic-check-spec-test",
-                                  "--output", "json", "bundle").CombinedOutput()
+    logger.Debug("Running operator-sdk scorecard check for ",bundleImage)
+    logger.Debug("--selector=test=basic-check-spec-test")
+    stdouterr, err := exec.Command("operator-sdk", "scorecard",   
+                                   "--selector=test=basic-check-spec-test",
+                                   "--output", "json", bundleImage).CombinedOutput()
     
     scorecardFile := filepath.Join(artifactsDir,"/",scorecardBasicCheckResult)
     
