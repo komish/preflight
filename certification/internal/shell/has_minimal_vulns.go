@@ -75,10 +75,17 @@ func numberOfVulnerabilities(image string, ovalFilePathDecompressed string, logg
 	err := cmd.Run()
 
 	if err != nil {
-		logger.Error("unable to execute oscap-podman on the image: ", cmd.Stderr)
+		logger.Error("unable to execute oscap-podman on the image: ", cmd.Stderr, reportFile)
 		return 0, err
 	}
-	//lines := strings.Split(string(out.String()), "\n")
+
+	path, err := os.Getwd()
+	if err != nil {
+		logger.Error("unable to get the current directory: ", err)
+	}
+
+	logger.Debugf("The path to vulnerability report: %s/%s ", path, reportFile)
+
 	r := regexp.MustCompile("Definition oval:com.redhat.*: true")
 	matches := r.FindAllStringIndex(string(out.String()), -1)
 	return len(matches), nil
