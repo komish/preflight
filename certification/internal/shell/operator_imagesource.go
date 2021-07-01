@@ -32,18 +32,21 @@ func (p *OperatorImageSourceCheck) Validate(bundleImage string, logger *logrus.L
 		Join("cut", "-d","/", "-f1").
 		Finalize().WithOutput(output).Run()
 	if err != nil {
-		panic(err)
+		logger.Error(" Failed to execute cmdchain builder")
+		logger.Debug(" failed to execute cmdchain builder", err)
+		return false, nil
 	}
 
 	//s := b.String() //cast to string
-	s := strings.TrimRight(output.String(), "\n")
-	logger.Info("Check Image registry for : ", s)
+	userRegistry := strings.TrimRight(output.String(), "\n")
+	logger.Info("Check Image registry for : ", userRegistry)
 	
-	if approvedRegistries[s] {
-		logger.Debug(s, " found in the approved registry")
+	if approvedRegistries[userRegistry] {
+		logger.Debug(userRegistry, " found in approved registry")
 		return true, nil
 	}
-	
+
+	logger.Info(userRegistry," not found in approved registry")
 	return false, nil
 }
 
@@ -53,7 +56,7 @@ func (p *OperatorImageSourceCheck) Name() string {
 
 func (p *OperatorImageSourceCheck) Metadata() certification.Metadata {
 	return certification.Metadata{
-		Description:      "Validating Bundle image",
+		Description:      "Validating Imagesource",
 		Level:            "best",
 		KnowledgeBaseURL: "https://connect.redhat.com/zones/containers/container-certification-policy-guide",
 		CheckURL:         "https://connect.redhat.com/zones/containers/container-certification-policy-guide",
@@ -62,7 +65,7 @@ func (p *OperatorImageSourceCheck) Metadata() certification.Metadata {
 
 func (p *OperatorImageSourceCheck) Help() certification.HelpText {
 	return certification.HelpText{
-		Message:    "Operator sdk validation test failed, this test checks if it can validate the content and format of the operator bundle",
-		Suggestion: "Valid bundles are definied by bundle spec, so make sure that this bundle conforms to that spec. More Information: https://github.com/operator-framework/operator-registry/blob/master/docs/design/operator-bundle.md",
+		Message:    "Imagesource check failed! Non-approved images found.",
+		Suggestion: "Push image to one of the approved registries.\n",
 	}
 }
