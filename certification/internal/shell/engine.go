@@ -43,7 +43,7 @@ func (e *CheckEngine) ExecuteChecks(logger *logrus.Logger) {
 				logger.Info("downloading image")
 				imageTarballPath, err := e.GetContainerFromRegistry(e.Image, logger)
 				if err != nil {
-					logger.Error("unable to the container from the registry: ", err)
+					logger.Error("unable to download the container from the registry: ", err)
 					e.results.Errors = append(e.results.Errors, check)
 					continue
 				}
