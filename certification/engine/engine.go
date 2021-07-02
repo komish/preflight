@@ -74,7 +74,6 @@ var hasNoProhibitedCheck certification.Check = &podmanexec.HasNoProhibitedPackag
 var validateOperatorBundle certification.Check = &podmanexec.ValidateOperatorBundlePolicy{}
 var scorecardBasicSpecCheck certification.Check = &podmanexec.ScorecardBasicSpecCheck{}
 var scorecardOlmSuiteCheck certification.Check = &podmanexec.ScorecardOlmSuiteCheck{}
-var operatorImageSourceCheck certification.Check = &podmanexec.OperatorImageSourceCheck{}
 
 var nameToChecksMap = map[string]certification.Check{
 	// NOTE(komish): these checks do not all apply to bundles, which is the current
@@ -91,7 +90,6 @@ var nameToChecksMap = map[string]certification.Check{
 	validateOperatorBundle.Name():              validateOperatorBundle,
 	scorecardBasicSpecCheck.Name():             scorecardBasicSpecCheck,
 	scorecardOlmSuiteCheck.Name():              scorecardOlmSuiteCheck,
-	operatorImageSourceCheck.Name():            operatorImageSourceCheck,
 }
 
 func AllChecks() []string {

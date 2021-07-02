@@ -38,7 +38,7 @@ func (p *ScorecardBasicSpecCheck) Validate(bundleImage string, logger *logrus.Lo
                                    "--selector=test=basic-check-spec-test",
                                    "--output", "json", bundleImage).CombinedOutput()
     
-    scorecardFile := filepath.Join(artifactsDir,"/",scorecardBasicCheckResult)
+    scorecardFile := filepath.Join(artifactsDir, "/", scorecardBasicCheckResult)
     
     err = ioutil.WriteFile(scorecardFile, stdouterr, 0644)
     if err != nil {
