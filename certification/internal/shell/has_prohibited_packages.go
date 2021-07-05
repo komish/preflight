@@ -3,22 +3,33 @@ package shell
 import (
 	"bufio"
 	"bytes"
-	"os/exec"
 
 	"github.com/komish/preflight/certification"
+	"github.com/komish/preflight/cli"
 	"github.com/sirupsen/logrus"
 )
 
 type HasNoProhibitedPackagesCheck struct{}
 
 func (p *HasNoProhibitedPackagesCheck) Validate(image string, logger *logrus.Logger) (bool, error) {
-	stdouterr, err := exec.Command("podman", "run", "-it", "--rm", "--entrypoint", "rpm", image, "-qa", "--queryformat", "%{NAME}\n").CombinedOutput()
+	podmanEngine := PodmanCLIEngine{}
+	return p.validate(podmanEngine, image, logger)
+}
+
+func (p *HasNoProhibitedPackagesCheck) validate(podmanEngine cli.PodmanEngine, image string, logger *logrus.Logger) (bool, error) {
+	runOpts := cli.ImageRunOptions{
+		EntryPoint:     "rpm",
+		EntryPointArgs: []string{"-qa", "--queryformat", "%{NAME}\n"},
+		LogLevel:       "debug",
+		Image:          image,
+	}
+	runReport, err := podmanEngine.Run(runOpts)
 	if err != nil {
 		logger.Error("unable to get a list of all packages in the image")
 		return false, err
 	}
 
-	scanner := bufio.NewScanner(bytes.NewReader(stdouterr))
+	scanner := bufio.NewScanner(bytes.NewReader([]byte(runReport.Stdout)))
 	for scanner.Scan() {
 		for _, pkg := range prohibitedPackageList {
 			if pkg == scanner.Text() {

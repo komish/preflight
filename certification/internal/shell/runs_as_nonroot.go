@@ -1,37 +1,43 @@
 package shell
 
 import (
-	"bytes"
-	"os/exec"
 	"strconv"
 	"strings"
 
 	"github.com/komish/preflight/certification"
+	"github.com/komish/preflight/cli"
 	"github.com/sirupsen/logrus"
 )
 
 type RunAsNonRootCheck struct{}
 
 func (p *RunAsNonRootCheck) Validate(image string, logger *logrus.Logger) (bool, error) {
-	cmd := exec.Command("podman", "run", "-it", "--rm", "--entrypoint", "id", image, "-u")
-	var out bytes.Buffer
-	cmd.Stdout = &out
-	var stderr bytes.Buffer
-	cmd.Stderr = &stderr
-	err := cmd.Run()
+	podmanEngine := PodmanCLIEngine{}
+	return p.validate(podmanEngine, image, logger)
+}
+
+func (p *RunAsNonRootCheck) validate(podmanEngine cli.PodmanEngine, image string, logger *logrus.Logger) (bool, error) {
+	runOpts := cli.ImageRunOptions{
+		EntryPoint:     "id",
+		EntryPointArgs: []string{"-u"},
+		LogLevel:       "debug",
+		Image:          image,
+	}
+
+	runReport, err := podmanEngine.Run(runOpts)
 	if err != nil {
 		logger.Error("unable to get the id of the runtime user of this image")
-		logger.Debugf("stdout: %s", out.String())
-		logger.Debugf("stderr: %s", stderr.String())
+		logger.Debugf("stdout: %s", runReport.Stdout)
+		logger.Debugf("stderr: %s", runReport.Stderr)
 		return false, err
 	}
 
 	// The output we get from the exec.Command includes returns
-	stdoutString := strings.TrimSpace(out.String())
+	stdoutString := strings.TrimSpace(runReport.Stdout)
 	uid, err := strconv.Atoi(stdoutString)
 	if err != nil {
 		logger.Error("unable to determine the runtime user id of the image")
-		logger.Debug("expected a value that could be converted to an integer, and got: ", out.String())
+		logger.Debug("expected a value that could be converted to an integer, and got: ", runReport.Stdout)
 		return false, err
 	}
 

@@ -1,18 +1,31 @@
 package shell
 
 import (
-	"os/exec"
 	"strings"
 
 	"github.com/komish/preflight/certification"
+	"github.com/komish/preflight/cli"
 	"github.com/sirupsen/logrus"
 )
 
 type HasLicenseCheck struct{}
 
 func (p *HasLicenseCheck) Validate(image string, logger *logrus.Logger) (bool, error) {
-	stdouterr, err := exec.Command("podman", "run", "-it", "--rm", "--entrypoint", "ls", image, "-A", "/licenses").CombinedOutput()
-	result := string(stdouterr)
+	podmanEngine := PodmanCLIEngine{}
+	return p.validate(podmanEngine, image, logger)
+
+}
+
+func (p *HasLicenseCheck) validate(podmanEngine cli.PodmanEngine, image string, logger *logrus.Logger) (bool, error) {
+	runOpts := cli.ImageRunOptions{
+		EntryPoint:     "ls",
+		EntryPointArgs: []string{"-A", "/licenses"},
+		LogLevel:       "debhug",
+		Image:          image,
+	}
+
+	runReport, err := podmanEngine.Run(runOpts)
+	result := string(runReport.Stdout)
 	if err != nil {
 		if strings.Contains(result, "No such file or directory") || result == "" {
 			logger.Warn("license not found in the container image at /licenses")
